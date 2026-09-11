@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { api, Lead } from "@/lib/api";
 import { Search, Users, FileDown, Trash2, ExternalLink, ShieldCheck } from "lucide-react";
+import { IconBadge } from "@/components/IconBadge";
 
 const VERDICT_STYLES: Record<string, string> = {
   valid: "bg-signal-teal/15 text-signal-teal600",
@@ -105,7 +106,7 @@ export default function LeadsPage() {
         </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-paper-100 bg-white">
+      <div className="mt-4 overflow-x-auto rounded-lg border border-paper-100 bg-white shadow-soft">
         <table className="w-full text-sm">
           <thead className="border-b border-paper-100 bg-paper-50 text-left text-ink-600">
             <tr>
@@ -125,7 +126,7 @@ export default function LeadsPage() {
               <tr>
                 <td colSpan={6} className="px-4 py-16">
                   <div className="flex flex-col items-center gap-3 text-center">
-                    <Users size={28} strokeWidth={1.25} className="text-paper-400" />
+                    <IconBadge icon={Users} tone="neutral" size="xl" />
                     <div>
                       <p className="text-ink-900">{search ? "No leads match your search" : "No leads yet"}</p>
                       <p className="mt-0.5 text-sm text-ink-600">

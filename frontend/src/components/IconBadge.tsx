@@ -1,20 +1,22 @@
 import clsx from "clsx";
 import type { LucideIcon } from "lucide-react";
 
-type Tone = "amber" | "teal" | "red" | "ink";
-type Size = "sm" | "md" | "lg";
+type Tone = "amber" | "teal" | "red" | "ink" | "neutral";
+type Size = "sm" | "md" | "lg" | "xl";
 
 const TONE_STYLES: Record<Tone, string> = {
   amber: "bg-signal-amber/15 text-signal-amber",
   teal: "bg-signal-teal/15 text-signal-teal600",
   red: "bg-signal-red/15 text-signal-red",
   ink: "bg-ink-900/[0.06] text-ink-900",
+  neutral: "bg-paper-100 text-paper-400",
 };
 
 const SIZE_STYLES: Record<Size, { box: string; icon: number }> = {
   sm: { box: "h-8 w-8", icon: 16 },
   md: { box: "h-10 w-10", icon: 18 },
   lg: { box: "h-12 w-12", icon: 22 },
+  xl: { box: "h-14 w-14", icon: 26 },
 };
 
 export function IconBadge({

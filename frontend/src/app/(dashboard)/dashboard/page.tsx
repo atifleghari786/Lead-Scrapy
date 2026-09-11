@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api, UsageSummary } from "@/lib/api";
 import clsx from "clsx";
 import { ListChecks, CheckCircle2, XCircle, Database, Radar, ArrowUpRight, type LucideIcon } from "lucide-react";
+import { IconBadge } from "@/components/IconBadge";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -49,7 +50,7 @@ export default function DashboardHome() {
             <StatCard icon={Database} label="Total records" value={data.total_records} />
           </div>
 
-          <div className="mt-6 rounded-lg border border-paper-100 bg-white p-5">
+          <div className="mt-6 rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
             <div className="flex items-center justify-between text-sm">
               <span className="text-ink-600">
                 <span className="font-medium text-ink-900">{data.plan.toUpperCase()}</span> plan —{" "}
@@ -71,10 +72,10 @@ export default function DashboardHome() {
 
           <div className="mt-8">
             <h2 className="font-display text-lg">Recent jobs</h2>
-            <div className="mt-3 divide-y divide-paper-100 rounded-lg border border-paper-100 bg-white">
+            <div className="mt-3 divide-y divide-paper-100 rounded-lg border border-paper-100 bg-white shadow-soft">
               {data.recent_jobs.length === 0 && (
                 <div className="flex flex-col items-center gap-3 py-14 text-center">
-                  <Radar size={28} strokeWidth={1.25} className="text-paper-400" />
+                  <IconBadge icon={Radar} tone="neutral" size="xl" />
                   <div>
                     <p className="text-ink-900">No jobs yet</p>
                     <p className="mt-0.5 text-sm text-ink-600">Start your first scrape to see it here.</p>
@@ -119,22 +120,14 @@ function StatCard({
   accent?: "teal" | "red";
 }) {
   return (
-    <div className="rounded-lg border border-paper-100 bg-white p-5">
+    <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft transition-shadow hover:shadow-lift">
       <div className="flex items-center justify-between">
         <span className="text-sm text-ink-600">{label}</span>
-        <Icon
-          size={16}
-          strokeWidth={1.75}
-          className={clsx(
-            "text-paper-400",
-            accent === "teal" && "text-signal-teal600",
-            accent === "red" && "text-signal-red"
-          )}
-        />
+        <IconBadge icon={Icon} tone={accent === "teal" ? "teal" : accent === "red" ? "red" : "neutral"} size="sm" />
       </div>
       <div
         className={clsx(
-          "mt-1 font-display text-3xl",
+          "mt-3 font-display text-3xl",
           accent === "teal" && "text-signal-teal600",
           accent === "red" && "text-signal-red"
         )}

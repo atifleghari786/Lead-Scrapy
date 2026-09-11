@@ -12,7 +12,7 @@ export default function UsagePage() {
 
   return (
     <div className="p-8">
-      <div className="rounded-lg border border-paper-100 bg-white p-6">
+      <div className="rounded-lg border border-paper-100 bg-white p-6 shadow-soft">
         <div className="flex items-baseline justify-between">
           <span className="text-sm text-ink-600">{data.plan.toUpperCase()} plan</span>
           <span className="text-sm text-ink-600">
@@ -33,15 +33,15 @@ export default function UsagePage() {
       </div>
 
       <div className="mt-6 grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <div className="text-sm text-ink-600">Total jobs</div>
           <div className="mt-1 font-display text-3xl">{data.total_jobs}</div>
         </div>
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <div className="text-sm text-ink-600">Successful</div>
           <div className="mt-1 font-display text-3xl text-signal-teal600">{data.successful_jobs}</div>
         </div>
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <div className="text-sm text-ink-600">Failed</div>
           <div className="mt-1 font-display text-3xl text-signal-red">{data.failed_jobs}</div>
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { api, Job } from "@/lib/api";
 import { Radar, ListChecks } from "lucide-react";
+import { IconBadge } from "@/components/IconBadge";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -52,7 +53,7 @@ export default function JobsPage() {
         </Link>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-lg border border-paper-100 bg-white">
+      <div className="mt-6 overflow-hidden rounded-lg border border-paper-100 bg-white shadow-soft">
         <table className="w-full text-sm">
           <thead className="border-b border-paper-100 bg-paper-50 text-left text-ink-600">
             <tr>
@@ -72,7 +73,7 @@ export default function JobsPage() {
               <tr>
                 <td colSpan={6} className="px-4 py-16">
                   <div className="flex flex-col items-center gap-3 text-center">
-                    <ListChecks size={28} strokeWidth={1.25} className="text-paper-400" />
+                    <IconBadge icon={ListChecks} tone="neutral" size="xl" />
                     <div>
                       <p className="text-ink-900">No jobs yet</p>
                       <p className="mt-0.5 text-sm text-ink-600">Every job you run will show up here.</p>

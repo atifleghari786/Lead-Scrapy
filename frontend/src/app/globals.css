@@ -9,7 +9,8 @@
 }
 
 body {
-  @apply bg-paper-50 text-ink-900 font-body antialiased;
+  @apply text-ink-900 font-body antialiased;
+  background-color: #F4F5F7;
 }
 
 ::selection {

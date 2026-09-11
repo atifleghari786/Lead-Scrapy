@@ -3,6 +3,7 @@
 import useSWR from "swr";
 import { api } from "@/lib/api";
 import { FileStack, Copy, Trash2 } from "lucide-react";
+import { IconBadge } from "@/components/IconBadge";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -27,11 +28,11 @@ export default function TemplatesPage() {
         Save a job's crawl settings and custom fields, then reuse them without rebuilding the form.
       </p>
 
-      <div className="mt-6 divide-y divide-paper-100 rounded-lg border border-paper-100 bg-white">
+      <div className="mt-6 divide-y divide-paper-100 rounded-lg border border-paper-100 bg-white shadow-soft">
         {isLoading && <p className="p-5 text-ink-600">Loading…</p>}
         {templates?.length === 0 && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <FileStack size={28} strokeWidth={1.25} className="text-paper-400" />
+            <IconBadge icon={FileStack} tone="neutral" size="xl" />
             <div>
               <p className="text-ink-900">No templates yet</p>
               <p className="mt-0.5 text-sm text-ink-600">Save one from a job's settings once you've run it.</p>

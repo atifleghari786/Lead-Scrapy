@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-paper-50">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="flex items-center gap-2 text-ink-600">
           <span className="h-2 w-2 animate-pulse rounded-full bg-signal-amber" />
           Loading…
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initial = (user?.full_name || user?.email || "?").charAt(0).toUpperCase();
 
   return (
-    <div className="flex min-h-screen bg-paper-50">
+    <div className="flex min-h-screen">
       <aside className="flex w-60 flex-col border-r border-paper-100 bg-ink-950 text-paper-50">
         <div className="flex items-center gap-2 border-b border-ink-800 px-5 py-5">
           <span className="flex h-7 w-7 items-center justify-center rounded bg-signal-amber font-display text-sm font-bold text-ink-950">
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 className={clsx(
-                  "flex items-center gap-2.5 rounded px-3 py-2 text-sm transition-colors",
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                   active
                     ? "bg-ink-800 text-paper-50"
                     : "text-paper-400 hover:bg-ink-900 hover:text-paper-50"

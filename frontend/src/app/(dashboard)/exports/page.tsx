@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { FileDown } from "lucide-react";
+import { IconBadge } from "@/components/IconBadge";
 
 export default function ExportsPage() {
   return (
     <div className="p-8">
-      <div className="flex flex-col items-center gap-3 rounded-lg border border-paper-100 bg-white py-16 text-center">
-        <FileDown size={28} strokeWidth={1.25} className="text-paper-400" />
+      <div className="flex flex-col items-center gap-3 rounded-lg border border-paper-100 bg-white py-16 text-center shadow-soft">
+        <IconBadge icon={FileDown} tone="neutral" size="xl" />
         <div>
           <p className="text-ink-900">Exports are generated on demand</p>
           <p className="mt-0.5 text-sm text-ink-600">
