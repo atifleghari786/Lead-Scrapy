@@ -8,6 +8,7 @@ from app.models.user import User
 from app.services.scraper_engine import crawl
 from app.services.social_extractor import extract_social_links, SocialExtractionError
 from app.services.places_finder import find_places, PlacesFinderError
+from app.services.email_finder import find_emails_for_domain, EmailFinderError
 from app.services.email_service import send_job_completed_email, send_job_failed_email
 
 
@@ -166,6 +167,62 @@ def run_social_extract_job(self, job_id: str):
             if user:
                 user.credits_used_this_period += 1
         except SocialExtractionError as e:
+            job.status = JobStatus.FAILED
+            job.errors_count = 1
+            job.error_log = [{"url": job.target_url, "error": str(e)}]
+            job.completed_at = datetime.utcnow()
+
+        db.commit()
+
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if job:
+            job.status = JobStatus.FAILED
+            job.completed_at = datetime.utcnow()
+            job.error_log = (job.error_log or []) + [{"error": str(e)}]
+            db.commit()
+        raise
+    finally:
+        db.close()
+
+
+@celery_app.task(bind=True, name="run_find_emails_job")
+def run_find_emails_job(self, job_id: str):
+    db = SessionLocal()
+    try:
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if not job or job.status == JobStatus.CANCELLED:
+            return
+
+        job.status = JobStatus.RUNNING
+        job.celery_task_id = self.request.id
+        job.started_at = datetime.utcnow()
+        db.commit()
+
+        try:
+            records = find_emails_for_domain(job.target_url)
+
+            for rec in records:
+                db.add(
+                    Lead(
+                        job_id=job.id,
+                        user_id=job.user_id,
+                        website_url=job.target_url,
+                        email=rec["email"],
+                        source_url=rec["source_url"],
+                    )
+                )
+
+            job.pages_processed = 1
+            job.records_found = len(records)
+            job.status = JobStatus.COMPLETED
+            job.completed_at = datetime.utcnow()
+
+            user = db.query(User).filter(User.id == job.user_id).first()
+            if user:
+                user.credits_used_this_period += 1
+        except EmailFinderError as e:
             job.status = JobStatus.FAILED
             job.errors_count = 1
             job.error_log = [{"url": job.target_url, "error": str(e)}]

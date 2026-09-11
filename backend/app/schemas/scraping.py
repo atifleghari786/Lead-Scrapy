@@ -80,6 +80,10 @@ class PlacesFindCreate(BaseModel):
     location: str
 
 
+class EmailFindCreate(BaseModel):
+    domain: str
+
+
 class ScrapeTemplateCreate(BaseModel):
     name: str
     description: str | None = None

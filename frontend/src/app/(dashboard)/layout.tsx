@@ -7,6 +7,7 @@ import clsx from "clsx";
 import {
   LayoutDashboard,
   Radar,
+  AtSign,
   Share2,
   MapPin,
   ListChecks,
@@ -23,6 +24,7 @@ import {
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scrape", label: "Scrape", icon: Radar },
+  { href: "/email-finder", label: "Email finder", icon: AtSign },
   { href: "/social-extractor", label: "Social links", icon: Share2 },
   { href: "/places-finder", label: "Places finder", icon: MapPin },
   { href: "/jobs", label: "Jobs", icon: ListChecks },
@@ -38,6 +40,7 @@ const NAV = [
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/scrape": "New scraping job",
+  "/email-finder": "Email finder",
   "/social-extractor": "Social links extractor",
   "/places-finder": "Places finder",
   "/jobs": "Scraping history",
