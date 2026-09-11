@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Radar } from "lucide-react";
 import { api } from "@/lib/api";
+import { IconBadge } from "@/components/IconBadge";
 
 type FieldDraft = { field_name: string; selector_type: "css" | "regex"; selector: string; attribute: string };
 
@@ -57,13 +59,21 @@ export default function ScrapePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-8">
+    <div className="mx-auto max-w-2xl space-y-6 p-8">
+      <div className="flex items-center gap-4 rounded-lg border border-paper-100 bg-white p-6 shadow-soft">
+        <IconBadge icon={Radar} tone="amber" size="lg" />
+        <div>
+          <h2 className="font-display text-xl">Site crawler</h2>
+          <p className="text-sm text-ink-600">Crawl a site and extract structured data with a background job.</p>
+        </div>
+      </div>
+
       <p className="text-sm text-ink-600">
         Only publicly accessible pages are crawled. Robots.txt is respected by default.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <label className="block">
             <span className="mb-1.5 block text-sm text-ink-600">Job name</span>
             <input
@@ -87,7 +97,7 @@ export default function ScrapePage() {
           </label>
         </div>
 
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <h2 className="font-medium">Crawler controls</h2>
           <div className="mt-4 grid grid-cols-2 gap-4">
             <label className="block">
@@ -133,7 +143,7 @@ export default function ScrapePage() {
           </label>
         </div>
 
-        <div className="rounded-lg border border-paper-100 bg-white p-5">
+        <div className="rounded-lg border border-paper-100 bg-white p-5 shadow-soft">
           <div className="flex items-center justify-between">
             <h2 className="font-medium">Custom fields</h2>
             <button type="button" onClick={addField} className="text-sm text-signal-amber hover:underline">
@@ -179,7 +189,7 @@ export default function ScrapePage() {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-ink-900 px-6 py-2.5 font-medium text-paper-50 hover:bg-ink-800 disabled:opacity-50"
+          className="rounded-full bg-ink-900 px-6 py-2.5 font-medium text-paper-50 hover:bg-ink-800 disabled:opacity-50"
         >
           {submitting ? "Starting…" : "Start scraping"}
         </button>

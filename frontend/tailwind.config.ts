@@ -40,6 +40,9 @@ const config: Config = {
         md: "6px",
         lg: "8px",
       },
+      boxShadow: {
+        soft: "0 1px 2px rgba(11, 14, 17, 0.04), 0 8px 24px -12px rgba(11, 14, 17, 0.12)",
+      },
     },
   },
   plugins: [],
