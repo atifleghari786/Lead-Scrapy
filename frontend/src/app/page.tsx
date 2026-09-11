@@ -40,7 +40,7 @@ export default function LandingPage() {
             <Link href="/login" className="hover:text-paper-50">Log in</Link>
             <Link
               href="/signup"
-              className="rounded bg-signal-amber px-4 py-2 font-medium text-ink-950 hover:bg-signal-amber/90"
+              className="rounded-full bg-signal-amber px-4 py-2 font-medium text-ink-950 hover:bg-signal-amber/90"
             >
               Start scraping
             </Link>
@@ -49,8 +49,16 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-6 py-24">
-        <div className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:items-center">
+      <section className="relative overflow-hidden mx-auto max-w-6xl px-6 py-24">
+        <div
+          className="pointer-events-none absolute inset-0 text-paper-50"
+          style={{
+            opacity: 0.07,
+            backgroundImage:
+              "repeating-linear-gradient(45deg, currentColor 0, currentColor 1px, transparent 1px, transparent 12px)",
+          }}
+        />
+        <div className="relative grid gap-12 lg:grid-cols-[3fr_2fr] lg:items-center">
           <div>
             <h1 className="font-display text-5xl leading-[1.1] tracking-tight lg:text-6xl">
               Point it at a page.
@@ -65,7 +73,7 @@ export default function LandingPage() {
             <div className="mt-8 flex items-center gap-4">
               <Link
                 href="/signup"
-                className="rounded bg-signal-amber px-6 py-3 font-medium text-ink-950 hover:bg-signal-amber/90"
+                className="rounded-full bg-signal-amber px-6 py-3 font-medium text-ink-950 hover:bg-signal-amber/90"
               >
                 Start scraping — free
               </Link>
@@ -73,10 +81,24 @@ export default function LandingPage() {
                 See how it works
               </a>
             </div>
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-paper-400">
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-signal-teal" />
+                Free tier, no card required
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-signal-teal" />
+                Robots.txt respected by default
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-signal-teal" />
+                CSV, XLSX, JSON export
+              </span>
+            </div>
           </div>
 
           {/* Job status mockup — grounded in the actual product, not decoration */}
-          <div className="rounded-lg border border-ink-700 bg-ink-900 p-5 font-mono text-sm">
+          <div className="rounded-lg border border-ink-700 bg-ink-900 p-5 font-mono text-sm shadow-2xl shadow-black/40">
             <div className="flex items-center justify-between text-paper-400">
               <span>directory-crawl-04</span>
               <span className="flex items-center gap-2 text-signal-amber">
@@ -160,7 +182,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/signup"
-                  className="mt-6 block rounded border border-ink-600 py-2 text-center text-sm hover:border-signal-amber hover:text-signal-amber"
+                  className="mt-6 block rounded-full border border-ink-600 py-2 text-center text-sm hover:border-signal-amber hover:text-signal-amber"
                 >
                   Choose {plan.name}
                 </Link>
