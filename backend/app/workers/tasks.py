@@ -6,6 +6,8 @@ from app.db.session import SessionLocal
 from app.models.scraping import ScrapeJob, Lead, JobStatus
 from app.models.user import User
 from app.services.scraper_engine import crawl
+from app.services.social_extractor import extract_social_links, SocialExtractionError
+from app.services.places_finder import find_places, PlacesFinderError
 from app.services.email_service import send_job_completed_email, send_job_failed_email
 
 
@@ -123,6 +125,135 @@ def run_scrape_job(self, job_id: str, resume: bool = False):
             user = db.query(User).filter(User.id == job.user_id).first()
             if user:
                 send_job_failed_email(user.email, job.name, str(e))
+        raise
+    finally:
+        db.close()
+
+
+@celery_app.task(bind=True, name="run_social_extract_job")
+def run_social_extract_job(self, job_id: str):
+    db = SessionLocal()
+    try:
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if not job or job.status == JobStatus.CANCELLED:
+            return
+
+        job.status = JobStatus.RUNNING
+        job.celery_task_id = self.request.id
+        job.started_at = datetime.utcnow()
+        db.commit()
+
+        try:
+            result = extract_social_links(job.target_url)
+            social_links = {k: v for k, v in result.items() if k != "source_url" and v}
+
+            db.add(
+                Lead(
+                    job_id=job.id,
+                    user_id=job.user_id,
+                    website_url=job.target_url,
+                    social_links=social_links or None,
+                    source_url=job.target_url,
+                )
+            )
+
+            job.pages_processed = 1
+            job.records_found = 1
+            job.status = JobStatus.COMPLETED
+            job.completed_at = datetime.utcnow()
+
+            user = db.query(User).filter(User.id == job.user_id).first()
+            if user:
+                user.credits_used_this_period += 1
+        except SocialExtractionError as e:
+            job.status = JobStatus.FAILED
+            job.errors_count = 1
+            job.error_log = [{"url": job.target_url, "error": str(e)}]
+            job.completed_at = datetime.utcnow()
+
+        db.commit()
+
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if job:
+            job.status = JobStatus.FAILED
+            job.completed_at = datetime.utcnow()
+            job.error_log = (job.error_log or []) + [{"error": str(e)}]
+            db.commit()
+        raise
+    finally:
+        db.close()
+
+
+@celery_app.task(bind=True, name="run_find_places_job")
+def run_find_places_job(self, job_id: str):
+    db = SessionLocal()
+    try:
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if not job or job.status == JobStatus.CANCELLED:
+            return
+
+        job.status = JobStatus.RUNNING
+        job.celery_task_id = self.request.id
+        job.started_at = datetime.utcnow()
+        db.commit()
+
+        user = db.query(User).filter(User.id == job.user_id).first()
+        remaining = max(user.monthly_credits - user.credits_used_this_period, 0) if user else 0
+
+        query = (job.crawl_state or {}).get("query", "")
+        location = (job.crawl_state or {}).get("location", "")
+
+        try:
+            if remaining <= 0:
+                raise PlacesFinderError("Monthly credit limit reached. Upgrade your plan.")
+
+            places = find_places(query, location, max_results=remaining)
+
+            for place in places:
+                website = place.get("website")
+                source_url = website or f"https://www.google.com/maps/place/?q=place_id:{place['place_id']}"
+                db.add(
+                    Lead(
+                        job_id=job.id,
+                        user_id=job.user_id,
+                        company_name=place.get("name"),
+                        address=place.get("formatted_address"),
+                        phone=place.get("formatted_phone_number"),
+                        website_url=website,
+                        category=", ".join(place.get("types") or []) or None,
+                        source_url=source_url,
+                        custom_fields={
+                            "rating": place.get("rating"),
+                            "user_ratings_total": place.get("user_ratings_total"),
+                        },
+                    )
+                )
+
+            job.pages_processed = len(places)
+            job.records_found = len(places)
+            job.status = JobStatus.COMPLETED
+            job.completed_at = datetime.utcnow()
+
+            if user:
+                user.credits_used_this_period += len(places)
+        except PlacesFinderError as e:
+            job.status = JobStatus.FAILED
+            job.errors_count = 1
+            job.error_log = [{"error": str(e)}]
+            job.completed_at = datetime.utcnow()
+
+        db.commit()
+
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        job = db.query(ScrapeJob).filter(ScrapeJob.id == uuid.UUID(job_id)).first()
+        if job:
+            job.status = JobStatus.FAILED
+            job.completed_at = datetime.utcnow()
+            job.error_log = (job.error_log or []) + [{"error": str(e)}]
+            db.commit()
         raise
     finally:
         db.close()

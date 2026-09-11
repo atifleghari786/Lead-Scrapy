@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.models.scraping import ScrapeJob, JobStatus
-from app.schemas.scraping import ScrapeJobCreate, ScrapeJobOut
+from app.schemas.scraping import ScrapeJobCreate, ScrapeJobOut, SocialExtractCreate, PlacesFindCreate
 from app.api.deps import get_current_user
 from app.services.url_safety import validate_target_url, UnsafeUrlError
-from app.workers.tasks import run_scrape_job
+from app.workers.tasks import run_scrape_job, run_social_extract_job, run_find_places_job
 from app.core.plans import PLAN_MAX_PAGES_PER_JOB, PLAN_CONCURRENT_JOBS
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
@@ -68,6 +68,64 @@ def create_job(
     db.refresh(job)
 
     run_scrape_job.delay(str(job.id))
+
+    return job
+
+
+@router.post("/extract-social", response_model=ScrapeJobOut, status_code=201)
+def create_social_extract_job(
+    payload: SocialExtractCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        validate_target_url(payload.url)
+    except UnsafeUrlError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if _remaining_credits(current_user) <= 0:
+        raise HTTPException(status_code=402, detail="Monthly credit limit reached. Upgrade your plan.")
+
+    job = ScrapeJob(
+        user_id=current_user.id,
+        name=f"Social links: {payload.url}",
+        target_url=payload.url,
+        max_pages=1,
+        crawl_depth=0,
+        status=JobStatus.QUEUED,
+    )
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
+    run_social_extract_job.delay(str(job.id))
+
+    return job
+
+
+@router.post("/find-places", response_model=ScrapeJobOut, status_code=201)
+def create_find_places_job(
+    payload: PlacesFindCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if _remaining_credits(current_user) <= 0:
+        raise HTTPException(status_code=402, detail="Monthly credit limit reached. Upgrade your plan.")
+
+    job = ScrapeJob(
+        user_id=current_user.id,
+        name=f"Places: {payload.query} — {payload.location}".strip(" —"),
+        target_url=payload.location or payload.query,
+        max_pages=0,
+        crawl_depth=0,
+        status=JobStatus.QUEUED,
+        crawl_state={"query": payload.query, "location": payload.location},
+    )
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
+    run_find_places_job.delay(str(job.id))
 
     return job
 

@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # Plans / credits
     FREE_PLAN_MONTHLY_CREDITS: int = 100
 
+    # Google Places API (used by the Places Finder tool — official API, no scraping)
+    GOOGLE_PLACES_API_KEY: str = ""
+
     # Stripe
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""

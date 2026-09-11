@@ -3,8 +3,15 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
+import clsx from "clsx";
 import { api, Lead } from "@/lib/api";
-import { Search, Users, FileDown, Trash2, ExternalLink } from "lucide-react";
+import { Search, Users, FileDown, Trash2, ExternalLink, ShieldCheck } from "lucide-react";
+
+const VERDICT_STYLES: Record<string, string> = {
+  valid: "bg-signal-teal/15 text-signal-teal600",
+  risky: "bg-signal-amber/15 text-signal-amber",
+  invalid: "bg-signal-red/15 text-signal-red",
+};
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -14,6 +21,7 @@ export default function LeadsPage() {
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [verifying, setVerifying] = useState(false);
 
   const query = new URLSearchParams();
   if (jobId) query.set("job_id", jobId);
@@ -39,6 +47,17 @@ export default function LeadsPage() {
     mutate();
   }
 
+  async function verifyEmails() {
+    if (selected.size === 0) return;
+    setVerifying(true);
+    try {
+      await api.post("/api/leads/verify-emails", Array.from(selected));
+      mutate();
+    } finally {
+      setVerifying(false);
+    }
+  }
+
   function exportUrl(format: "csv" | "xlsx" | "json") {
     const q = new URLSearchParams();
     if (jobId) q.set("job_id", jobId);
@@ -59,10 +78,20 @@ export default function LeadsPage() {
         </div>
         <div className="flex items-center gap-2 text-sm">
           {selected.size > 0 && (
-            <button onClick={bulkDelete} className="flex items-center gap-1.5 text-signal-red hover:underline">
-              <Trash2 size={14} strokeWidth={1.75} />
-              Delete {selected.size}
-            </button>
+            <>
+              <button
+                onClick={verifyEmails}
+                disabled={verifying}
+                className="flex items-center gap-1.5 text-ink-900 hover:underline disabled:opacity-50"
+              >
+                <ShieldCheck size={14} strokeWidth={1.75} />
+                {verifying ? "Verifying…" : `Verify emails (${selected.size})`}
+              </button>
+              <button onClick={bulkDelete} className="flex items-center gap-1.5 text-signal-red hover:underline">
+                <Trash2 size={14} strokeWidth={1.75} />
+                Delete {selected.size}
+              </button>
+            </>
           )}
           <a href={exportUrl("csv")} className="flex items-center gap-1.5 rounded border border-paper-100 px-3 py-1.5 hover:border-ink-600">
             <FileDown size={14} strokeWidth={1.75} /> CSV
@@ -118,7 +147,25 @@ export default function LeadsPage() {
                     {lead.website_url && <ExternalLink size={11} strokeWidth={1.75} className="shrink-0 text-paper-400" />}
                   </a>
                 </td>
-                <td className="px-4 py-2.5">{lead.email || "—"}</td>
+                <td className="px-4 py-2.5">
+                  {lead.email ? (
+                    <span className="flex items-center gap-1.5">
+                      {lead.email}
+                      {lead.custom_fields?.email_verification && (
+                        <span
+                          className={clsx(
+                            "rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+                            VERDICT_STYLES[lead.custom_fields.email_verification.verdict]
+                          )}
+                        >
+                          {lead.custom_fields.email_verification.verdict}
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-4 py-2.5">{lead.phone || "—"}</td>
                 <td className="px-4 py-2.5 text-ink-600">{lead.status}</td>
                 <td className="px-4 py-2.5 text-ink-600">{new Date(lead.scraped_at).toLocaleDateString()}</td>

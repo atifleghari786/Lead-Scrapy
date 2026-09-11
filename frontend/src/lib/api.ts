@@ -39,6 +39,15 @@ export type Job = {
   created_at: string;
 };
 
+export type EmailVerification = {
+  email: string;
+  syntax_valid: boolean;
+  mx_found: boolean;
+  is_disposable: boolean;
+  is_role_based: boolean;
+  verdict: "valid" | "risky" | "invalid";
+};
+
 export type Lead = {
   id: string;
   job_id: string;
@@ -48,7 +57,9 @@ export type Lead = {
   phone: string | null;
   address: string | null;
   category: string | null;
+  social_links: Record<string, string> | string[] | null;
   source_url: string;
+  custom_fields: (Record<string, unknown> & { email_verification?: EmailVerification }) | null;
   status: string;
   tags: string[] | null;
   is_favorite: boolean;

@@ -49,10 +49,11 @@ class LeadOut(BaseModel):
     phone: str | None
     address: str | None
     category: str | None
-    social_links: list | None
+    social_links: dict | list | None
     page_title: str | None
     description: str | None
     source_url: str
+    custom_fields: dict | None
     tags: list | None
     notes: str | None
     status: str
@@ -68,6 +69,15 @@ class LeadUpdate(BaseModel):
     notes: str | None = None
     status: str | None = None
     is_favorite: bool | None = None
+
+
+class SocialExtractCreate(BaseModel):
+    url: str
+
+
+class PlacesFindCreate(BaseModel):
+    query: str
+    location: str
 
 
 class ScrapeTemplateCreate(BaseModel):

@@ -70,7 +70,7 @@ class Lead(Base):
     phone: Mapped[str | None] = mapped_column(String(64), nullable=True)
     address: Mapped[str | None] = mapped_column(String(512), nullable=True)
     category: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    social_links: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    social_links: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
     page_title: Mapped[str | None] = mapped_column(String(512), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_url: Mapped[str] = mapped_column(String(2048), nullable=False)
